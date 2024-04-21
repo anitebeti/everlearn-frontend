@@ -16,13 +16,12 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { MyCourses } from '../courses/MyCourses';
 import { Avatar } from '@mui/material';
 
 const drawerWidth = 200;
 
 function ResponsiveDrawer(props) {
-  const { window } = props;
+  const { window, listItems1, listItems2, mainBox } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
 
@@ -47,7 +46,7 @@ function ResponsiveDrawer(props) {
       <img src='/media/logo-dumb.jpg' alt="Everlearn LOGO" style={{width: '100%', height: 'auto'}}/>
       <Divider />
       <List>
-        {['Cursurile mele', 'Noutati'].map((text, index) => (
+        {listItems1.map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
@@ -60,7 +59,7 @@ function ResponsiveDrawer(props) {
       </List>
       <Divider />
       <List>
-        {['Profil', 'Contact'].map((text, index) => (
+        {listItems2.map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton>
               <ListItemIcon>
@@ -131,20 +130,12 @@ function ResponsiveDrawer(props) {
           {drawer}
         </Drawer>
       </Box>
-      <Box
-        component="main"
-        sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
-      >
-        <Toolbar />
-        <Typography paragraph align="center" sx={{ fontWeight: 'bold', fontSize: '2rem' }}>
-            CURSURILE MELE 
-        </Typography>
-        <MyCourses/>
-        <Typography paragraph align="center" sx={{ fontWeight: 'bold', fontSize: '2rem' }}>
-            NOUTATI
-        </Typography>
-        <MyCourses/>
+
+      <Box component="main"
+        sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}>
+        {mainBox}
       </Box>
+      
     </Box>
   );
 }
