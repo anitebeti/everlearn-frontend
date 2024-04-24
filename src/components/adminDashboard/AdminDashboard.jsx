@@ -15,7 +15,7 @@ export const AdminDashboard = () => {
 
     function createData(firstName, lastName, email, roles) {
         return {firstName, lastName, email, roles};
-    };
+    }
 
     useEffect(() => {
         setUserRoles(userRolesTOBEDELETED);
