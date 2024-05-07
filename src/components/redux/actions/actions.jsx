@@ -1,8 +1,9 @@
-// export const SUCCESS_SIGNIN = "SUCCESS_SIGNIN";
+export const SIGN_IN_USER = "SIGN_IN_USER";
 
-// export const showAlertForSuccessSignIn = (alert) => {
-//     return {
-//         type: SUCCESS_SIGNIN,
-//         payload: alert
-//     }
-// }
+
+export const signInUser = (user) => {
+    return {
+        type: SIGN_IN_USER,
+        payload: user
+    }
+}

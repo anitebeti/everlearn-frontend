@@ -4,7 +4,9 @@ import { PasswordField } from "./PasswordField";
 import axios from "axios";
 import { useState } from "react";
 import { SnackbarComponent } from "../snackbar/SnackbarComponent";
-import { BAD_CREDENTIALS, PRECONDITION_FAILED, SIGNIN_URL } from "../../utils/utils";
+import { BAD_CREDENTIALS, FORBIDDEN, PRECONDITION_FAILED, SIGNIN_URL, BASE_URL } from "../../utils/utils";
+import { useDispatch } from "react-redux";
+import { signInUser } from "../redux/actions/actions";
 
 export const SignInBox = () => {
 
@@ -14,9 +16,10 @@ export const SignInBox = () => {
 
     const location = useLocation();
     const isSignedUp = location.state?.isSignedUp || false;
+    const hasSignedOut = location.state?.hasSignedOut || false;
 
     const navigate = useNavigate();
-
+    const dispatch = useDispatch();
 
     const handleSignIn = () => {
 
@@ -24,10 +27,20 @@ export const SignInBox = () => {
             setStatusCode(PRECONDITION_FAILED);
         } else {
             axios.post(SIGNIN_URL, {email, password})
-            .then(() => {
-                console.log('User signed in successfully!');
-                const isLoggedIn = true;
-                navigate("/", { state: { isLoggedIn }});
+            .then(response => {
+                const { token } = response.data;
+                console.log('User signed in successfully!', response.data);
+                localStorage.setItem("user", JSON.stringify(response.data));
+                dispatch(signInUser(response.data));
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+                if(response.data.roles.includes("ADMIN")) {
+                    navigate('/admin', { state: { isLoggedIn: true }});
+                } else if (response.data.roles.includes("AUTHOR")) {
+                    navigate('/author', { state: { isLoggedIn: true }});
+                } else {
+                    navigate("/", { state: { isLoggedIn: true }});
+                }
             })
             .catch(error => {
                 console.error('Failed to sign up user', error);
@@ -67,6 +80,9 @@ export const SignInBox = () => {
 
             {statusCode === BAD_CREDENTIALS && (<SnackbarComponent message="Incorrect email or password!" severity="error" />)}
             {statusCode === PRECONDITION_FAILED && (<SnackbarComponent message="Please fill in all the fields!" severity="warning" />)}
+            {statusCode === FORBIDDEN && (<SnackbarComponent message="An error occured, please contact the team." severity="error" />)}
+            {hasSignedOut && <SnackbarComponent message="You have successfully signed out" severity="success"/>}
+
         </div>
     )
 

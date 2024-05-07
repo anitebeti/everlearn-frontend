@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import ResponsiveDrawer from "../drawer/ResponsiveDrawer"
 import { Box, Button, FormControl, FormControlLabel, FormGroup, IconButton, Input, InputLabel, MenuItem, Modal, Paper, Select, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Tooltip, Typography } from "@mui/material";
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { useLocation, useNavigate } from "react-router-dom";
+import { SnackbarComponent } from "../snackbar/SnackbarComponent";
+import { ADMIN_CHANGE_ROLES, ADMIN_DASHBOARD_URL, FORBIDDEN, OK, UNAUTHORISED } from "../../utils/utils";
+import axios from "axios";
 
 export const AdminDashboard = () => {
     const [rows, setRows] = useState([]);
@@ -12,43 +16,56 @@ export const AdminDashboard = () => {
     const [prevUserRoles, setPrevUserRoles] = useState({});
     const [originalRows, setOriginalRows] = useState([]);
     const [anchorEl, setAnchorEl] = useState();
+    const [statusCode, setStatusCode] = useState();
+
+    const location = useLocation();
+    const isLoggedIn = location.state?.isLoggedIn || false;
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const navigate = useNavigate();
 
     function createData(firstName, lastName, email, roles) {
-        return {firstName, lastName, email, roles};
+        return { firstName, lastName, email, roles };
+    }
+
+    function createRoleData(roles) {
+        return {
+            "participant": roles.includes("PARTICIPANT"),
+            "author": roles.includes("AUTHOR"),
+            "moderator": roles.includes("MODERATOR"),
+            "admin": roles.includes("ADMIN")
+        };
     }
 
     useEffect(() => {
-        setUserRoles(userRolesTOBEDELETED);
-        setRows(rowsTOBEDELETED);
-        setOriginalRows(rowsTOBEDELETED);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+        axios.get(ADMIN_DASHBOARD_URL)
+        .then(response => {
+            console.log("Admin successfully accessed admin dashboard!", response);
+            createRowData(response);
+            setStatusCode(response.status);
+        })
+        .catch(error => {
+            console.log("Error occured while accessing admin dashboard.", error);
+            setStatusCode(error.response.status);
+            if (error.response.status === UNAUTHORISED) {
+                navigate("/", { state: { unauthorised: true }});
+            }
+        })
     },[]);
 
-    const userRolesTOBEDELETED = {
-        'liviu.maru@gmail.com': {
-            "participant": true,
-            "author": false,
-            "moderator": false,
-            "admin": true
-        },
-        'raluca.turcu@gmail.com': {
-            "participant": true,
-            "author": false,
-            "moderator": false,
-            "admin": false
-        },
-        'maria.savu@gmail.com': {
-            "participant": false,
-            "author": true,
-            "moderator": false,
-            "admin": true
-        }
+    const createRowData = (response) => {
+        const userRolesObj = {};
+        response.data.forEach(data => {
+            const roles = createRoleData(data.roles);
+            userRolesObj[data.email] = roles;
+        });
+        const rowsObj = response.data.map(data => createData(data.firstName, data.lastName, data.email, userRolesObj[data.email]));
+        
+        setRows(rowsObj);
+        setOriginalRows(rowsObj);
+        setUserRoles(userRolesObj);
     }
-
-    const rowsTOBEDELETED = [
-        createData('Liviu', 'Maru', 'liviu.maru@gmail.com', userRolesTOBEDELETED['liviu.maru@gmail.com']),
-        createData('Raluca', 'Turcu', 'raluca.turcu@gmail.com', userRolesTOBEDELETED['raluca.turcu@gmail.com']),
-        createData('Maria', 'Savu', 'maria.savu@gmail.com', userRolesTOBEDELETED['maria.savu@gmail.com'])
-    ]
 
     const modalStyle = {
         display: 'flex',
@@ -104,6 +121,19 @@ export const AdminDashboard = () => {
             ...row,
             roles: userRoles[row.email] || {} }));
         updateRows(updatedRows);
+        console.log("selected email ", selectedRow.email);
+        console.log("selected roles ", selectedRow.roles);
+        
+        const rolesObj = userRoles[selectedRow.email];
+        const roles = Object.keys(rolesObj)
+                .filter(role => rolesObj[role]===true)
+                .map(role => role.toUpperCase());
+        console.log("updated ", roles);
+
+        axios.put(ADMIN_CHANGE_ROLES, { email: selectedRow.email, roles })
+        .then(response => console.log("Successfully updated roles", response))
+        .catch(error => console.error(error));
+
         handleEditModalClose();
     }
 
@@ -119,6 +149,11 @@ export const AdminDashboard = () => {
             setRows(originalRows);
         }
     };
+
+    function handleSignOut () {
+        localStorage.removeItem("user");
+        navigate("/signin", { state: { hasSignedOut: true }});
+    }
     
 
     const dashboard = (
@@ -221,15 +256,21 @@ export const AdminDashboard = () => {
                     </Box>
                 </Modal>
             )}
+            {isLoggedIn && <SnackbarComponent message="Admin logged in successfully!" severity="success" />}
+
         </Box>
     );
-
-
+    
     return (
-        <ResponsiveDrawer
-        listItems1={['Users']}
-        listItems2={['Sign out']}
-        mainBox={dashboard}
-        />
-    );
+        <div>
+            {statusCode === OK && 
+            <ResponsiveDrawer
+            listItems1={['Users']}
+            listActions1={[]}
+            listItems2={['Sign out']}
+            listActions2={handleSignOut}
+            mainBox={dashboard}
+            />}
+        </div>
+    )
 }

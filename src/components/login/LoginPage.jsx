@@ -4,8 +4,6 @@ import { SignUpBox } from "./SignUpBox";
 
 export const LoginPage = ({ loginAction }) => {
 
-    //TODO: ADD FORGOT PSW
-
     const backgroundStyle = {
         margin: 0,
         padding: 0,

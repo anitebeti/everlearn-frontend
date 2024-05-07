@@ -16,12 +16,12 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Avatar } from '@mui/material';
+import { Avatar, Button } from '@mui/material';
 
 const drawerWidth = 200;
 
 function ResponsiveDrawer(props) {
-  const { window, listItems1, listItems2, mainBox } = props;
+  const { window, listItems1, listActions1, listItems2, listActions2, mainBox } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
 
@@ -48,7 +48,7 @@ function ResponsiveDrawer(props) {
       <List>
         {listItems1.map((text, index) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={listActions1[index]}>
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
@@ -59,16 +59,18 @@ function ResponsiveDrawer(props) {
       </List>
       <Divider />
       <List>
-        {listItems2.map((text, index) => (
+        {listItems2.map((text, index) => {
+          return (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton onClick={listActions2}>
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
-        ))}
+        )
+})}
       </List>
     </div>
   );

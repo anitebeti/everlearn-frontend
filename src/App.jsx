@@ -3,6 +3,7 @@ import './App.css'
 import { AdminDashboard } from './components/adminDashboard/AdminDashboard'
 import { LoginPage } from './components/login/LoginPage'
 import { MainPage } from './components/mainPage/MainPage'
+import { AuthorPage } from './components/AuthorPage/AuthorPage'
 
 function App() {
 
@@ -11,11 +12,12 @@ function App() {
       <Routes>
         <Route path={"/signup"} element={<LoginPage loginAction={"signup"}/>} />
         <Route path={"/signin"} element={<LoginPage loginAction={"signin"}/>} />
-        <Route index path={"/"} element={<MainPage/>} /> 
+        <Route index path={"/"} element={<MainPage/>}/>
+        <Route path={"/admin"} element={<AdminDashboard/>}/>
+        <Route index path={"/author"} element={<AuthorPage view={"courses"}/>}/>
+        <Route path={"/author/courses"} element={<AuthorPage view={"courses"}/>}/>
+        <Route path={"/author/addCourse"} element={<AuthorPage view={"addCourse"}/>}/>
       </Routes>
-
-      {/* <AdminDashboard/> */}
-
     </div>
   )
 }
