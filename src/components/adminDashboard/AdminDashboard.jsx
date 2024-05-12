@@ -4,7 +4,7 @@ import { Box, Button, FormControl, FormControlLabel, FormGroup, IconButton, Inpu
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { useLocation, useNavigate } from "react-router-dom";
 import { SnackbarComponent } from "../snackbar/SnackbarComponent";
-import { ADMIN_CHANGE_ROLES, ADMIN_DASHBOARD_URL, FORBIDDEN, OK, UNAUTHORISED } from "../../utils/utils";
+import { ADMIN_CHANGE_ROLES, ADMIN_DASHBOARD_URL, ADMIN_DRAWER_ITEMS_1, DRAWER_ITEMS_2, OK, UNAUTHORISED, useDrawerActions2 } from "../../utils/utils";
 import axios from "axios";
 
 export const AdminDashboard = () => {
@@ -17,6 +17,7 @@ export const AdminDashboard = () => {
     const [originalRows, setOriginalRows] = useState([]);
     const [anchorEl, setAnchorEl] = useState();
     const [statusCode, setStatusCode] = useState();
+    const listActions2 = useDrawerActions2();
 
     const location = useLocation();
     const isLoggedIn = location.state?.isLoggedIn || false;
@@ -150,11 +151,9 @@ export const AdminDashboard = () => {
         }
     };
 
-    function handleSignOut () {
-        localStorage.removeItem("user");
-        navigate("/signin", { state: { hasSignedOut: true }});
+    function handleGoToAdminPage() {
+        navigate("/admin");
     }
-    
 
     const dashboard = (
         <Box>
@@ -265,11 +264,11 @@ export const AdminDashboard = () => {
         <div>
             {statusCode === OK && 
             <ResponsiveDrawer
-            listItems1={['Users']}
-            listActions1={[]}
-            listItems2={['Sign out']}
-            listActions2={handleSignOut}
-            mainBox={dashboard}
+                listItems1={ADMIN_DRAWER_ITEMS_1}
+                listActions1={[handleGoToAdminPage]}
+                listItems2={DRAWER_ITEMS_2}
+                listActions2={listActions2}
+                mainBox={dashboard}
             />}
         </div>
     )

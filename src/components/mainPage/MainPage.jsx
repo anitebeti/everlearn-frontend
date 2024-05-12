@@ -6,7 +6,7 @@ import { SnackbarComponent } from "../snackbar/SnackbarComponent";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import axios from "axios";
-import { BASE_URL, USER_GET_ALL_COURSES } from "../../utils/utils";
+import { BASE_URL, DRAWER_ITEMS_2, USER_DRAWER_ITEMS_1, USER_GET_NON_SUBSCRIBED_COURSES, USER_GET_PHOTO, USER_GET_SUBSCRIBED_COURSES, useDrawerActions2 } from "../../utils/utils";
 
 export const MainPage = () => {
 
@@ -15,31 +15,31 @@ export const MainPage = () => {
     const unauthorised = location.state?.unauthorised || false;
     const isAuthenticated = useSelector(state => state.isAuthenticated);
     const user = JSON.parse(localStorage.getItem("user"));
+    const listActions2 = useDrawerActions2();
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get(BASE_URL, { params: { id: user.id}})
-        .then(response => {
-            console.log('Main page data:', response.data);
-        })
-        .catch(error => {
-            console.error('Error fetching main page data:', error);
-        });
+        axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
+        axios.get(BASE_URL)
+        .then(response => console.log('Main page data:', response.data))
+        .catch(error =>  console.error('Error fetching main page data:', error)) 
     }, [])
 
-    function handleSignOut () {
-        localStorage.removeItem("user");
-        navigate("/signin", { state: { hasSignedOut: true }});
+    function handleGoToMyCourses() {
+        navigate("/");
     }
+    
 
     const mainPage = (
         <Box>
             <Toolbar />
-            <Typography paragraph align="center" sx={{ fontWeight: 'bold', fontSize: '2rem' }}>My Courses</Typography>
-            {/* <MyCourses/> */}
+
+            <Typography variant='h6' paragraph align="center">My Courses</Typography>
+            <Courses url={`${USER_GET_SUBSCRIBED_COURSES}/${user.id}`} subscribed={true}/>
     
-            <Typography paragraph align="center" sx={{ fontWeight: 'bold', fontSize: '2rem' }}>Others</Typography>
-            <Courses url={USER_GET_ALL_COURSES}/>
+            <Typography variant='h6' paragraph align="center">Others</Typography>
+            <Courses url={`${USER_GET_NON_SUBSCRIBED_COURSES}/${user.id}`} subscribed={false}/>
+
             {isLoggedIn && <SnackbarComponent message="Logged in successfully!" severity="success" />}
             {unauthorised && <SnackbarComponent message="You don't have rights to access this page!" severity="error" />}
       </Box> 
@@ -49,10 +49,10 @@ export const MainPage = () => {
         return (
             <div>
                 <ResponsiveDrawer
-                listItems1={['My Courses', 'Others']}
-                listActions1={[]}
-                listItems2={['Profile', 'Contact', 'Sign out']}
-                listActions2={handleSignOut}
+                listItems1={USER_DRAWER_ITEMS_1}
+                listActions1={[handleGoToMyCourses]}
+                listItems2={DRAWER_ITEMS_2}
+                listActions2={listActions2}
                 mainBox={mainPage}
                 />
             </div>

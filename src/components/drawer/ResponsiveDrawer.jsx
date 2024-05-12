@@ -16,7 +16,10 @@ import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { Avatar, Button } from '@mui/material';
+import { Avatar } from '@mui/material';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { USER_GET_PHOTO } from '../../utils/utils';
 
 const drawerWidth = 200;
 
@@ -24,6 +27,20 @@ function ResponsiveDrawer(props) {
   const { window, listItems1, listActions1, listItems2, listActions2, mainBox } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
+  const [photo, setPhoto] = useState();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    axios.get(`${USER_GET_PHOTO}/${user.id}`, { responseType: 'arraybuffer' })
+        .then(response => {
+            const blob = new Blob([response.data], { type: 'image/jpeg' });
+            const objectUrl = URL.createObjectURL(blob);
+            setPhoto(objectUrl);
+            user.photoUrl = objectUrl;
+            localStorage.setItem("user", JSON.stringify(user));
+        })
+        .catch(error => console.error('Error fetching photo:', error));
+}, []);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -46,7 +63,9 @@ function ResponsiveDrawer(props) {
       <img src='/media/logo-dumb.jpg' alt="Everlearn LOGO" style={{width: '100%', height: 'auto'}}/>
       <Divider />
       <List>
-        {listItems1.map((text, index) => (
+        {listItems1.map((text, index) => {
+          console.log ("IN DRAWER ", listActions1);
+            return (
           <ListItem key={text} disablePadding>
             <ListItemButton onClick={listActions1[index]}>
               <ListItemIcon>
@@ -55,14 +74,14 @@ function ResponsiveDrawer(props) {
               <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
-        ))}
+        )})}
       </List>
       <Divider />
       <List>
         {listItems2.map((text, index) => {
           return (
           <ListItem key={text} disablePadding>
-            <ListItemButton onClick={listActions2}>
+            <ListItemButton onClick={listActions2[index]}>
               <ListItemIcon>
                 {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
               </ListItemIcon>
@@ -95,8 +114,10 @@ function ResponsiveDrawer(props) {
           <Typography variant="h6" noWrap component="div">
             we are here to learn
           </Typography>
-          {/* AVATAR! */}
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" sx={{ width: 56, height: 56, ml: 'auto' }}/>
+          <Avatar 
+            alt="Remy Sharp" 
+            src={ photo }
+            sx={{ width: 56, height: 56, ml: 'auto' }}/>
         </Toolbar>
       </AppBar>
       <Box

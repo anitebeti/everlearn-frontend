@@ -4,7 +4,7 @@ import { PasswordField } from "./PasswordField";
 import axios from "axios";
 import { useState } from "react";
 import { SnackbarComponent } from "../snackbar/SnackbarComponent";
-import { BAD_CREDENTIALS, FORBIDDEN, PRECONDITION_FAILED, SIGNIN_URL, BASE_URL } from "../../utils/utils";
+import { BAD_CREDENTIALS, FORBIDDEN, PRECONDITION_FAILED, SIGNIN_URL } from "../../utils/utils";
 import { useDispatch } from "react-redux";
 import { signInUser } from "../redux/actions/actions";
 

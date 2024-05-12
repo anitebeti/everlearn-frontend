@@ -4,6 +4,7 @@ import { AdminDashboard } from './components/adminDashboard/AdminDashboard'
 import { LoginPage } from './components/login/LoginPage'
 import { MainPage } from './components/mainPage/MainPage'
 import { AuthorPage } from './components/AuthorPage/AuthorPage'
+import { Profile } from './components/profile/Profile'
 
 function App() {
 
@@ -17,6 +18,7 @@ function App() {
         <Route index path={"/author"} element={<AuthorPage view={"courses"}/>}/>
         <Route path={"/author/courses"} element={<AuthorPage view={"courses"}/>}/>
         <Route path={"/author/addCourse"} element={<AuthorPage view={"addCourse"}/>}/>
+        <Route path={"/profile"} element={<Profile/>}/>
       </Routes>
     </div>
   )

@@ -4,17 +4,14 @@ import { Box, Toolbar } from "@mui/material";
 import { SnackbarComponent } from "../snackbar/SnackbarComponent";
 import { AuthorCourses } from "./AuthorCourses";
 import { AddCourse } from "./AddCourse";
+import { AUTHOR_DRAWER_ITEMS_1, DRAWER_ITEMS_2, useDrawerActions2 } from "../../utils/utils";
 
 export const AuthorPage = ({ view }) => {
 
     const isLoggedIn = location.state?.isLoggedIn || false;
     const unauthorised = location.state?.unauthorised || false;
+    const listActions2 = useDrawerActions2();
     const navigate = useNavigate();
-
-    function handleSignOut() {
-        localStorage.removeItem("user");
-        navigate("/signin", { state: { hasSignedOut: true }});
-    }
 
     function handleGoToCourses() {
         navigate("/author/courses");
@@ -42,18 +39,15 @@ export const AuthorPage = ({ view }) => {
                 </Box> 
             }
         </div>
-
-        
-
     )
 
     return (
         <div>
             <ResponsiveDrawer
-                listItems1={['My Courses', 'Add a Course']}
+                listItems1={AUTHOR_DRAWER_ITEMS_1}
                 listActions1={[handleGoToCourses, handleGoToAddCourse]}
-                listItems2={['Profile', 'Contact', 'Sign out']}
-                listActions2={handleSignOut}
+                listItems2={DRAWER_ITEMS_2}
+                listActions2={listActions2}
                 mainBox={authorPage}
                 />
         </div>

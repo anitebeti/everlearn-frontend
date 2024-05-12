@@ -1,4 +1,4 @@
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from "@mui/material"
+import { Box, Button, Card, CardActions, CardContent, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from "@mui/material"
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { AUTHOR_GET_AUTHOR_COURSE_LIST, UNAUTHORISED } from "../../utils/utils";
@@ -10,17 +10,16 @@ export const AuthorCourses = () => {
     const user = JSON.parse(localStorage.getItem("user"));
     const navigate = useNavigate();
 
-    function createData(name, description, url, participants) {
-        return { name, description, url, participants };
+    function createData(id, name, description, url, participants) {
+        return { id, name, description, url, participants };
     }
 
     useEffect(() => {
         axios.defaults.headers.common['Authorization'] = `Bearer ${user.token}`;
-        console.log("AUTHOR COURSES: ");
         axios.get(AUTHOR_GET_AUTHOR_COURSE_LIST, { params: { userId: user.id}})
         .then(response => {
             console.log("Courses successfully fetched!", response);
-            const courses = response.data.map(data => createData(data.name, data.description, data.url, 0));
+            const courses = response.data.map(data => createData(data.course.id, data.course.name, data.course.description, data.course.url, data.userIds.length));
             setRows(courses);
         })
         .catch(error => {
@@ -38,6 +37,25 @@ export const AuthorCourses = () => {
             <Toolbar>
                 <Typography variant="h6" component="div">My Courses</Typography>
             </Toolbar>
+
+            {rows.length === 0 && 
+            <Box sx={{ minWidth: 275 }}>
+                <Card variant="outlined">
+                    <CardContent>
+                        <Typography variant="h5" component="div">
+                            No course added yet.
+                        </Typography>
+                    </CardContent>
+                    <CardActions>
+                        <Link to="/author/addCourse">
+                            <Button size="small">Add a course</Button>
+                        </Link>
+                    </CardActions>
+                </Card>
+            </Box>}
+
+
+            {rows.length !== 0 && 
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -65,6 +83,8 @@ export const AuthorCourses = () => {
                     </TableBody>
                 </Table>
             </TableContainer>
+            }
+
         </Box>
     )
 }
